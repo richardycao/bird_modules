@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package coinbasepro;
+
+service CoinbasePro {
+  rpc GetProductTicker(GetProductTickerRequest) returns (GetProductTickerResponse) {}
+}
+
+message GetProductTickerRequest {
+  string product_id = 1;
+}
+
+message GetProductTickerResponse {
+  int32 trade_id = 1;
+  string price = 2;
+  string size = 3;
+  string bid = 4;
+  string ask = 5;
+  string volume = 6;
+  string time = 7;
+}

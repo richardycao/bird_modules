@@ -1,0 +1,3 @@
+coinbasepro==0.3.0
+grpcio==1.40.0
+grpcio-tools==1.40.0

@@ -1,0 +1,13 @@
+FROM python:latest
+
+WORKDIR /user/src/app
+
+COPY ./client/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY ./coinbasepro.proto .
+RUN python -m grpc_tools.protoc -I ./ --python_out=. --grpc_python_out=. ./coinbasepro.proto
+
+COPY ./client/client.py .
+
+CMD ["python", "./client.py"]
