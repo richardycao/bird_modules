@@ -51,13 +51,13 @@ class CoinbasePro(coinbasepro_pb2_grpc.CoinbaseProServicer):
         #             type='hello'
         #         )
 
-def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+async def serve():
+    server = aio.server()
     coinbasepro_pb2_grpc.add_CoinbaseProServicer_to_server(CoinbasePro(), server)
     server.add_insecure_port('[::]:50051')
-    server.start()
-    server.wait_for_termination()
+    await server.start()
+    await server.wait_for_termination()
 
 if __name__ == '__main__':
     logging.basicConfig()
-    serve()
+    asyncio.run(serve())

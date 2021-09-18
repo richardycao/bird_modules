@@ -11,10 +11,10 @@ import os
 
 endpoint = os.getenv("INPUT_ENDPOINT", "localhost:50051")
 
-def run():
-   with grpc.insecure_channel(endpoint) as channel:
+async def run():
+   async with aio.insecure_channel(endpoint) as channel:
         stub = coinbasepro_pb2_grpc.CoinbaseProStub(channel)
-        response = stub.GetProductTicker(coinbasepro_pb2.GetProductTickerRequest(product_id='BTC-USD'))
+        response = await stub.GetProductTicker(coinbasepro_pb2.GetProductTickerRequest(product_id='BTC-USD'))
         print(MessageToDict(response))
         
         # ws_request = coinbasepro_pb2.WebsocketRequest()
@@ -95,4 +95,4 @@ def run():
 
 if __name__ == '__main__':
     logging.basicConfig()
-    run()
+    asyncio.run(run())
