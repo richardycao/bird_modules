@@ -28,46 +28,34 @@ class CoinbasePro(coinbasepro_pb2_grpc.CoinbaseProServicer):
             time = str(response['time'])
         )
 
-    def Websocket(self, request, context):
+    # async grpc server: https://stackoverflow.com/questions/38387443/how-to-implement-a-async-grpc-python-server/63020796#63020796
+    async def Websocket(self, request, context):
         websocket_params = {
             'type': request.type,
-            'product_ids': [pid.product_id for pid in request.product_ids],
+            'product_ids': [pid for pid in request.product_ids],
             'channels': [{
                 'name': ch.name,
-                'channels': [pid.product_id for pid in ch.product_ids]
+                'channels': [pid for pid in ch.product_ids]
             } for ch in request.channels]
         }
 
-        with websockets.connect('wss://ws-feed.pro.coinbase.com') as websocket:
-            websocket.send(json.dumps(websocket_params))
+        async with websockets.connect('wss://ws-feed.pro.coinbase.com') as websocket:
+            await websocket.send(json.dumps(websocket_params))
             while True:
-                response = websocket.recv()
+                response = await websocket.recv()
+                response = json.loads(response)
                 yield coinbasepro_pb2.WebsocketResponse(
-                    type='hello'
+                    type=response['type'],
+                    product_id=response['product_id'] if 'product_id' in response else '',
+                    time=response['time'] if 'time' in response else '',
+                    sequence=response['sequence'] if 'sequence' in response else 0,
+                    price=response['price'] if 'price' in response else '',
+                    side=response['side'] if 'side' in response else '',
+                    trade_id=response['trade_id'] if 'trade_id' in response else 0,
+                    last_size=response['last_size'] if 'last_size' in response else '',
+                    best_bid=response['best_bid'] if 'best_bid' in response else '',
+                    best_ask=response['best_ask'] if 'best_ask' in response else '',
                 )
-    # https://stackoverflow.com/questions/53898185/how-can-i-use-grpc-with-asyncio
-    # async def Websocket(self, request, context):
-    #     websocket_params = {
-    #         'type': request.type,
-    #         'product_ids': [pid.product_id for pid in request.product_ids],
-    #         'channels': [{
-    #             'name': ch.name,
-    #             'channels': [pid.product_id for pid in ch.product_ids]
-    #         } for ch in request.channels]
-    #     }
-
-    #     while True:
-    #         yield coinbasepro_pb2.WebsocketResponse(
-    #             type='test_type'
-    #         )
-        # async with websockets.connect('wss://ws-feed.pro.coinbase.com') as websocket:
-        #     await websocket.send(json.dumps(websocket_params))
-        #     while True:
-        #         response = await websocket.recv()
-        #         print(response)
-        #         yield coinbasepro_pb2.WebsocketResponse(
-        #             type='hello'
-        #         )
 
 # PR for gRPC graceful shutdown: https://github.com/grpc/grpc/pull/26622
 async def serve():

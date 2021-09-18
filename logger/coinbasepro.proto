@@ -46,12 +46,12 @@ message WebsocketResponse {
     string type = 1;
     string product_id = 2;
     string time = 3;
-    int32 sequence = 4;
+    int64 sequence = 4;
     string price = 5;
     string side = 6;
 
     // Less commonly used fields
-    int32 trade_id = 7;
+    int64 trade_id = 7;
     string last_size = 8;
     string best_bid = 9;
     string best_ask = 10;
