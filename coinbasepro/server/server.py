@@ -1,9 +1,14 @@
 import coinbasepro as cbp
+import asyncio
+import websockets
+from websockets import WebSocketServerProtocol
+import json
 
 from concurrent import futures
 import logging
 
 import grpc
+from grpc import aio
 import coinbasepro_pb2
 import coinbasepro_pb2_grpc
 
@@ -22,6 +27,29 @@ class CoinbasePro(coinbasepro_pb2_grpc.CoinbaseProServicer):
             volume = str(response['volume']),
             time = str(response['time'])
         )
+    # https://stackoverflow.com/questions/53898185/how-can-i-use-grpc-with-asyncio
+    # async def Websocket(self, request, context):
+    #     websocket_params = {
+    #         'type': request.type,
+    #         'product_ids': [pid.product_id for pid in request.product_ids],
+    #         'channels': [{
+    #             'name': ch.name,
+    #             'channels': [pid.product_id for pid in ch.product_ids]
+    #         } for ch in request.channels]
+    #     }
+
+    #     while True:
+    #         yield coinbasepro_pb2.WebsocketResponse(
+    #             type='test_type'
+    #         )
+        # async with websockets.connect('wss://ws-feed.pro.coinbase.com') as websocket:
+        #     await websocket.send(json.dumps(websocket_params))
+        #     while True:
+        #         response = await websocket.recv()
+        #         print(response)
+        #         yield coinbasepro_pb2.WebsocketResponse(
+        #             type='hello'
+        #         )
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

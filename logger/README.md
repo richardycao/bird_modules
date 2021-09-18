@@ -1,6 +1,7 @@
 ### Create image
 
 `cd ./logger`
+
 `docker build -f Dockerfile.client -t logger_client_image .`
 
 ### Run container locally

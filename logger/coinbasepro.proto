@@ -3,19 +3,56 @@ syntax = "proto3";
 package coinbasepro;
 
 service CoinbasePro {
-  rpc GetProductTicker(GetProductTickerRequest) returns (GetProductTickerResponse) {}
+    rpc GetProductTicker(GetProductTickerRequest) returns (GetProductTickerResponse) {}
+
+    rpc Websocket(WebsocketRequest) returns (stream WebsocketResponse) {}
 }
 
 message GetProductTickerRequest {
-  string product_id = 1;
+    string product_id = 1;
 }
 
 message GetProductTickerResponse {
-  int32 trade_id = 1;
-  string price = 2;
-  string size = 3;
-  string bid = 4;
-  string ask = 5;
-  string volume = 6;
-  string time = 7;
+    int32 trade_id = 1;
+    string price = 2;
+    string size = 3;
+    string bid = 4;
+    string ask = 5;
+    string volume = 6;
+    string time = 7;
+}
+
+message WebsocketRequest {
+    string type = 1;
+    repeated string product_ids = 2;
+    repeated WebsocketChannel channels = 3;
+    string signature = 4;
+    string key = 5;
+    string passphrase = 6;
+    string timestamp = 7;
+}
+
+message WebsocketChannel {
+    string name = 1;
+    repeated string product_ids = 2;
+}
+
+// *** Only supports ticker channel for now.
+// Don't build too many modules that rely on this or else 
+// we'll have to toss them later.
+message WebsocketResponse {
+    // Most commonly used fields across websocket channels.
+    // Ordered by most common to least common.
+    string type = 1;
+    string product_id = 2;
+    string time = 3;
+    int32 sequence = 4;
+    string price = 5;
+    string side = 6;
+
+    // Less commonly used fields
+    int32 trade_id = 7;
+    string last_size = 8;
+    string best_bid = 9;
+    string best_ask = 10;
 }
